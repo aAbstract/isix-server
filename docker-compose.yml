@@ -1,0 +1,29 @@
+services:
+
+  isi_lite_nodered_0:
+    container_name: isi_lite_nodered_0
+    image: nodered/node-red
+    ports:
+      - "1880:1880" # host_port:container_port
+    volumes:
+      - isi_lite_nodered_date_0:/data
+
+  isi_lite_mosquitto_broker_0:
+    container_name: isi_lite_mosquitto_broker_0
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883" # host_port:container_port
+      - "9001:9001" # host_port:container_port
+    volumes:
+      - ./conf/mosquitto_passwords.conf:/mosquitto/passwords
+      - ./conf/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - isi_lite_mosquitto_broker_data_0:/mosquitto/data
+      - isi_lite_mosquitto_broker_log_0:/mosquitto/log
+
+volumes:
+  isi_lite_nodered_date_0:
+    name: isi_lite_nodered_date_0
+  isi_lite_mosquitto_broker_data_0:
+    name: isi_lite_mosquitto_broker_data_0
+  isi_lite_mosquitto_broker_log_0:
+    name: isi_lite_mosquitto_broker_log_0
