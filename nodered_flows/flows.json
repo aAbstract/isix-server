@@ -1,0 +1,1018 @@
+[
+    {
+        "id": "f6f2187d.f17ca8",
+        "type": "tab",
+        "label": "isi_core",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "2f24acc10066bde3",
+        "type": "tab",
+        "label": "isi_automations",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "77bde423a73a2728",
+        "type": "mqtt-broker",
+        "name": "ISI_LITE",
+        "broker": "172.17.0.1",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "5",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "c110535e7827e1e4",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "dev_notes",
+        "info": "Add Device Health Telem\n",
+        "x": 1320,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "b935ba8da7a159b2",
+        "type": "mqtt in",
+        "z": "f6f2187d.f17ca8",
+        "name": "data_request_rooms",
+        "topic": "data/+/request/rooms",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "77bde423a73a2728",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 130,
+        "y": 260,
+        "wires": [
+            [
+                "0e502a5b593f2621"
+            ]
+        ]
+    },
+    {
+        "id": "0e502a5b593f2621",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "handle_request_rooms",
+        "func": "const connection_id = msg.topic.split('/')[1];\n\nreturn {\n    topic: `data/${connection_id}/response/rooms`,\n    payload: global.get('rooms'),\n};\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 260,
+        "wires": [
+            [
+                "436db5ba0403ad0e"
+            ]
+        ]
+    },
+    {
+        "id": "436db5ba0403ad0e",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "data_response",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "77bde423a73a2728",
+        "x": 740,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "079f9a2926daa777",
+        "type": "inject",
+        "z": "f6f2187d.f17ca8",
+        "name": "on_start",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "0",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 100,
+        "wires": [
+            [
+                "d6b1dac899c49a54",
+                "34db32f7aa0f1bee",
+                "2ab16c5759ef9147"
+            ]
+        ]
+    },
+    {
+        "id": "d6b1dac899c49a54",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "init_rooms",
+        "func": "const _rooms = [\n    'Living Room',      // 0\n    'Bedroom',          // 1\n    'Children Room',    // 2\n    'Dining Room',      // 3\n    'Kichen',           // 4\n    'Gym',              // 5\n    'Garden',           // 6\n    'Office',           // 7\n    'Tv Room',          // 8\n];\n\nconst rooms = _rooms.map((room_name, idx) => {\n    return {\n        room_id: idx,\n        room_name,\n        temp: '-- C',\n        humd: '--%',\n    };\n});\nglobal.set('rooms', rooms);\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 290,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "34db32f7aa0f1bee",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "init_devices",
+        "func": "const devices = [\n    // living_room - room_0\n    {\n        \"device_uuid\": \"2667fbd5-c088-40d3-bb6e-d5b312dd21e8\",\n        \"device_name\": \"Main Switch\",\n        \"room_id\": 0,\n        \"device_type\": \"SWITCH_1CH\",\n        \"link_type\": \"LIVE\",\n        \"device_config\": [],\n        \"is_online\": false\n    },\n    {\n        \"device_uuid\": \"c69788ae-c1a3-4dc3-8c0d-85621b22dd72\",\n        \"device_name\": \"Main Switch Panel\",\n        \"room_id\": 0,\n        \"device_type\": \"SWITCH_4CH\",\n        \"link_type\": \"LIVE\",\n        \"device_config\": [],\n        \"is_online\": false\n    },\n    {\n        \"device_uuid\": \"a6ab47dc-deac-483f-8cf6-c3d678495aef\",\n        \"device_name\": \"Main Plug\",\n        \"room_id\": 0,\n        \"device_type\": \"PLUG_1CH\",\n        \"link_type\": \"LIVE\",\n        \"device_config\": [],\n        \"is_online\": false\n    },\n    {\n        \"device_uuid\": \"083a5491-b411-4052-ad28-909b6578aace\",\n        \"device_name\": \"Main RGB\",\n        \"room_id\": 0,\n        \"device_type\": \"RGB\",\n        \"link_type\": \"LIVE\",\n        \"device_config\": [],\n        \"is_online\": false\n    },\n    {\n        \"device_uuid\": \"f4e8140d-7de5-4270-b826-0ef275d4e789\",\n        \"device_name\": \"Temperature Sensor\",\n        \"room_id\": 0,\n        \"device_type\": \"TEMP\",\n        \"link_type\": \"SUSPEND\",\n        \"device_config\": [],\n        \"is_online\": false\n    },\n    {\n        \"device_uuid\": \"829853cd-71ce-4840-a550-30a51551e1ac\",\n        \"device_name\": \"Humidity Sensor\",\n        \"room_id\": 0,\n        \"device_type\": \"HUMD\",\n        \"link_type\": \"SUSPEND\",\n        \"device_config\": [],\n        \"is_online\": false\n    },\n    {\n        \"device_uuid\": \"b65b2e54-68d0-4f4b-9cf7-f09d8e921106\",\n        \"device_name\": \"Security Lock\",\n        \"room_id\": 0,\n        \"device_type\": \"SEC_LOCK\",\n        \"link_type\": \"SUSPEND\",\n        \"device_config\": [],\n        \"is_online\": false\n    },\n    {\n        \"device_uuid\": \"100f08d5-b466-434b-be72-8bdbae5ea54d\",\n        \"device_name\": \"Flood Sensor\",\n        \"room_id\": 0,\n        \"device_type\": \"FLOOD\",\n        \"link_type\": \"SUSPEND\",\n        \"device_config\": [],\n        \"is_online\": false\n    },\n    {\n        \"device_uuid\": \"87bfb75b-4086-414a-a218-0173aff010b6\",\n        \"device_name\": \"Motion Sensor\",\n        \"room_id\": 0,\n        \"device_type\": \"MOTION\",\n        \"link_type\": \"LIVE\",\n        \"device_config\": [\n            {\n                \"config_name\": \"light_mode\",\n                \"config_disp_name\": \"Light Mode\",\n                \"config_val\": false\n            },\n            {\n                \"config_name\": \"sec_mode\",\n                \"config_disp_name\": \"Security Mode\",\n                \"config_val\": true\n            }\n        ],\n        \"is_online\": false\n    },\n    // bedroom - room_1\n    {\n        \"device_uuid\": \"bf7bd296-a185-4df4-80ac-1d9b019887a0\",\n        \"device_name\": \"Temperature Sensor\",\n        \"room_id\": 1,\n        \"device_type\": \"TEMP\",\n        \"link_type\": \"SUSPEND\",\n        \"device_config\": [],\n        \"is_online\": false\n    },\n    {\n        \"device_uuid\": \"136109d5-c658-41ff-8ea9-3d131cc80221\",\n        \"device_name\": \"Humidity Sensor\",\n        \"room_id\": 1,\n        \"device_type\": \"HUMD\",\n        \"link_type\": \"SUSPEND\",\n        \"device_config\": [],\n        \"is_online\": false\n    },\n];\n\nconst sensor_room_map = {};\nconst device_type_map = {};\ndevices.forEach(d => {\n    const device_mqtt_id = d.device_uuid.slice(-4);\n    device_type_map[device_mqtt_id] = d.device_type;\n\n    if (['TEMP', 'HUMD'].includes(d.device_type))\n        sensor_room_map[device_mqtt_id] = d.room_id;\n});\n\nglobal.set('devices', devices);\nglobal.set('device_type_map', device_type_map);\nglobal.set('sensor_room_map', sensor_room_map);\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 290,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b6092b1d958f9c91",
+        "type": "mqtt in",
+        "z": "f6f2187d.f17ca8",
+        "name": "data_request_devices",
+        "topic": "data/+/request/devices",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "77bde423a73a2728",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 140,
+        "y": 300,
+        "wires": [
+            [
+                "f54a884b99101336"
+            ]
+        ]
+    },
+    {
+        "id": "f54a884b99101336",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "handle_request_devices",
+        "func": "const connection_id = msg.topic.split('/')[1];\n\nreturn {\n    topic: `data/${connection_id}/response/devices`,\n    payload: global.get('devices'),\n};\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 300,
+        "wires": [
+            [
+                "9b18a89954825236"
+            ]
+        ]
+    },
+    {
+        "id": "9b18a89954825236",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "data_response",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "77bde423a73a2728",
+        "x": 740,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "120a6cbd2341811b",
+        "type": "mqtt in",
+        "z": "f6f2187d.f17ca8",
+        "name": "ble_bridge_1",
+        "topic": "telem/0001/ble_bridge",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "77bde423a73a2728",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 110,
+        "y": 500,
+        "wires": [
+            [
+                "eb7e5385770a65cf",
+                "62f6f2c0b994c3e9"
+            ]
+        ]
+    },
+    {
+        "id": "2ab16c5759ef9147",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "init_ble_map",
+        "func": "const ble_mac_uuid_map = {\n    '41:42:43:44:45:46_temp': 'f4e8140d-7de5-4270-b826-0ef275d4e789',\n    '41:42:43:44:45:46_humd': '829853cd-71ce-4840-a550-30a51551e1ac',\n};\n\nglobal.set('ble_mac_uuid_map', ble_mac_uuid_map);\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 290,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "40d165dd3b96651a",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "fetch_temp",
+        "func": "const ble_mac_uuid_map = global.get('ble_mac_uuid_map');\nconst { mac_addr, temp } = msg.payload;\nconst __bdma = `${mac_addr}_temp`;\nif (!Object.keys(ble_mac_uuid_map).includes(__bdma))\n    return;\n/** @type {string} */\nconst target_device_uuid = ble_mac_uuid_map[__bdma];\nconst mqtt_device_id = target_device_uuid.slice(-4);\nreturn {\n    topic: `state/${mqtt_device_id}/temp_0`,\n    payload: temp,\n};\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 480,
+        "wires": [
+            [
+                "322a377724447e15"
+            ]
+        ]
+    },
+    {
+        "id": "eb15d742e2f1f798",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "fetch_humd",
+        "func": "const ble_mac_uuid_map = global.get('ble_mac_uuid_map');\nconst { mac_addr, humd } = msg.payload;\nconst __bdma = `${mac_addr}_humd`;\nif (!Object.keys(ble_mac_uuid_map).includes(__bdma))\n    return;\n/** @type {string} */\nconst target_device_uuid = ble_mac_uuid_map[__bdma];\nconst mqtt_device_id = target_device_uuid.slice(-4);\nreturn {\n    topic: `state/${mqtt_device_id}/humd_0`,\n    payload: humd,\n};\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 520,
+        "wires": [
+            [
+                "766a3a5bfb397e69"
+            ]
+        ]
+    },
+    {
+        "id": "eb7e5385770a65cf",
+        "type": "switch",
+        "z": "f6f2187d.f17ca8",
+        "name": "has_temp",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "hask",
+                "v": "temp",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 280,
+        "y": 480,
+        "wires": [
+            [
+                "40d165dd3b96651a"
+            ]
+        ]
+    },
+    {
+        "id": "62f6f2c0b994c3e9",
+        "type": "switch",
+        "z": "f6f2187d.f17ca8",
+        "name": "has_humd",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "hask",
+                "v": "humd",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 290,
+        "y": 520,
+        "wires": [
+            [
+                "eb15d742e2f1f798"
+            ]
+        ]
+    },
+    {
+        "id": "322a377724447e15",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "temp_out",
+        "topic": "",
+        "qos": "0",
+        "retain": "true",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "77bde423a73a2728",
+        "x": 640,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "f0f58a6cb6c86106",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "mqtt_data_requests",
+        "info": "",
+        "x": 130,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "62879a571c9790b9",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "ble_bridge",
+        "info": "",
+        "x": 100,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "766a3a5bfb397e69",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "humd_out",
+        "topic": "",
+        "qos": "0",
+        "retain": "true",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "77bde423a73a2728",
+        "x": 640,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "a2050a1acf89fee4",
+        "type": "mqtt in",
+        "z": "f6f2187d.f17ca8",
+        "name": "state_switch_0",
+        "topic": "state/0000/#",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "77bde423a73a2728",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 120,
+        "y": 640,
+        "wires": [
+            [
+                "252a3ee87a7af003"
+            ]
+        ]
+    },
+    {
+        "id": "252a3ee87a7af003",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "tp_update_msg",
+        "func": "const device_pref = msg.topic.split('/')[2];\nconst tpb_id_map = {\n    'power_0': 1,\n    'power_1': 2,\n    'power_2': 3,\n    'power_3': 4,\n};\nconst tpb_id = tpb_id_map[device_pref];\n\nconst tpb_val = msg.payload === 'RELAY_STATE_ON' ? 1 : 0;\nconst tpb_cmd_payload = JSON.stringify({\n    page: 0,\n    id: tpb_id,\n    val: tpb_val,\n});\n\nreturn {\n    payload: 'jsonl ' + tpb_cmd_payload,\n};\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 640,
+        "wires": [
+            [
+                "fb51a1fc4170f3be"
+            ]
+        ]
+    },
+    {
+        "id": "fb51a1fc4170f3be",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "hsap_touch_panel_command",
+        "topic": "hasp/plate/command",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "77bde423a73a2728",
+        "x": 630,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "2e4ddd05b51c668b",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "get_touch_panel_btn_id",
+        "func": "const target_device_id = '0000';\nconst tpb_id = Number(msg.topic.split('/').pop().slice(-1));\nconst tpb_id_map = {\n    1: 'power_0',\n    2: 'power_1',\n    3: 'power_2',\n    4: 'power_3',\n};\nconst target_device_pref = tpb_id_map[tpb_id];\n\nreturn {\n    tpb_id,\n    topic: `rpc/${target_device_id}/command_${target_device_pref}`,\n    payload: 'X',\n};\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 680,
+        "wires": [
+            [
+                "7a16bb3e4d8df840"
+            ]
+        ]
+    },
+    {
+        "id": "f0536c454d986cae",
+        "type": "switch",
+        "z": "f6f2187d.f17ca8",
+        "name": "debounce",
+        "property": "payload.event",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "up",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 360,
+        "y": 680,
+        "wires": [
+            [
+                "2e4ddd05b51c668b"
+            ]
+        ]
+    },
+    {
+        "id": "1f714c36380fd3b1",
+        "type": "mqtt in",
+        "z": "f6f2187d.f17ca8",
+        "name": "hsap_touch_panel_state",
+        "topic": "hasp/plate/state/#",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "77bde423a73a2728",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 150,
+        "y": 680,
+        "wires": [
+            [
+                "f0536c454d986cae"
+            ]
+        ]
+    },
+    {
+        "id": "7a16bb3e4d8df840",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "rpc_switch_0_command_power",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "77bde423a73a2728",
+        "x": 890,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "96703a0a6c095c79",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "touch_panel_switch",
+        "info": "",
+        "x": 130,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "46b8ec1b97839eb9",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "room_sensors",
+        "info": "",
+        "x": 110,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "ae3bb6aeb14755c5",
+        "type": "mqtt in",
+        "z": "f6f2187d.f17ca8",
+        "name": "room_temp_sensors",
+        "topic": "state/+/temp_0",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "77bde423a73a2728",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 130,
+        "y": 820,
+        "wires": [
+            [
+                "5e3f8f5b5b97b7fb"
+            ]
+        ]
+    },
+    {
+        "id": "4e82c2846a5b11c8",
+        "type": "mqtt in",
+        "z": "f6f2187d.f17ca8",
+        "name": "room_humd_sensors",
+        "topic": "state/+/humd_0",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "77bde423a73a2728",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 140,
+        "y": 860,
+        "wires": [
+            [
+                "b1ba3b434790da6d"
+            ]
+        ]
+    },
+    {
+        "id": "b1ba3b434790da6d",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "handle_humd_room_sensors",
+        "func": "const sensor_room_map = global.get('sensor_room_map');\nconst rooms = global.get('rooms');\nconst device_mqtt_id = msg.topic.split('/')[1];\nconst target_room_id = sensor_room_map[device_mqtt_id];\nrooms[target_room_id].humd = msg.payload;\nglobal.set('rooms', rooms);\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 860,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5e3f8f5b5b97b7fb",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "handle_temp_room_sensors",
+        "func": "const sensor_room_map = global.get('sensor_room_map');\nconst rooms = global.get('rooms');\nconst device_mqtt_id = msg.topic.split('/')[1];\nconst target_room_id = sensor_room_map[device_mqtt_id];\nrooms[target_room_id].temp = msg.payload;\nglobal.set('rooms', rooms);\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 820,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "0f39749e8b0cdc48",
+        "type": "comment",
+        "z": "f6f2187d.f17ca8",
+        "name": "main_sensors",
+        "info": "",
+        "x": 110,
+        "y": 960,
+        "wires": []
+    },
+    {
+        "id": "4eef250cf6218303",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "inject_device_data",
+        "func": "const device_type_map = global.get('device_type_map');\nconst [_, device_mqtt_id, device_pref] = msg.topic.split('/');\nmsg.device_type = device_type_map[device_mqtt_id] ?? null;\nmsg.device_mqtt_id = device_mqtt_id;\nmsg.device_pref = device_pref;\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 1000,
+        "wires": [
+            [
+                "c270fc658cc9630a"
+            ]
+        ]
+    },
+    {
+        "id": "c270fc658cc9630a",
+        "type": "switch",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "property": "device_type",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "SWITCH_1CH",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "PLUG_1CH",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "SWITCH_4CH",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "TEMP",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "HUMD",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 5,
+        "x": 490,
+        "y": 1000,
+        "wires": [
+            [
+                "55c24c215543ae8b"
+            ],
+            [
+                "0d65221015ba9045"
+            ],
+            [
+                "d02ff744a1624f0e"
+            ],
+            [
+                "909c79fc8a0be4a2"
+            ],
+            [
+                "dd194de9eeb85c66"
+            ]
+        ]
+    },
+    {
+        "id": "55c24c215543ae8b",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "main_state_switch_1ch",
+        "func": "const { device_mqtt_id } = msg;\nreturn {\n    topic: `_state/${device_mqtt_id}/main`,\n    payload: msg.payload,\n};\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 710,
+        "y": 920,
+        "wires": [
+            [
+                "c767453850223c81"
+            ]
+        ]
+    },
+    {
+        "id": "c767453850223c81",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "device_main_state",
+        "topic": "",
+        "qos": "0",
+        "retain": "true",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "77bde423a73a2728",
+        "x": 950,
+        "y": 920,
+        "wires": []
+    },
+    {
+        "id": "cb4acfaa4e57d48e",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 300,
+        "y": 1040,
+        "wires": []
+    },
+    {
+        "id": "0d65221015ba9045",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "main_state_plug_1ch",
+        "func": "const { device_mqtt_id } = msg;\nreturn {\n    topic: `_state/${device_mqtt_id}/main`,\n    payload: msg.payload,\n};\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 700,
+        "y": 960,
+        "wires": [
+            [
+                "a68946abc21260d5"
+            ]
+        ]
+    },
+    {
+        "id": "a68946abc21260d5",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "device_main_state",
+        "topic": "",
+        "qos": "0",
+        "retain": "true",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "77bde423a73a2728",
+        "x": 950,
+        "y": 960,
+        "wires": []
+    },
+    {
+        "id": "d02ff744a1624f0e",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "main_state_switch_4ch",
+        "func": "const { device_mqtt_id, device_pref } = msg;\nconst device_state_cache_key = `${device_mqtt_id}_state`;\nconst default_state_cache = {\n    'power_0': 'OFF',\n    'power_1': 'OFF',\n    'power_2': 'OFF',\n    'power_3': 'OFF',\n};\nconst device_state_cache = global.get(device_state_cache_key) ?? default_state_cache;\ndevice_state_cache[device_pref] = msg.payload;\nglobal.set(device_state_cache_key, device_state_cache);\nconst device_main_state = Object.values(device_state_cache).some(x => x === 'ON') ? 'ON' : 'OFF';\nreturn {\n    topic: `_state/${device_mqtt_id}/main`,\n    payload: device_main_state,\n};\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 710,
+        "y": 1000,
+        "wires": [
+            [
+                "c171721f5fe66956"
+            ]
+        ]
+    },
+    {
+        "id": "c171721f5fe66956",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "device_main_state",
+        "topic": "",
+        "qos": "0",
+        "retain": "true",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "77bde423a73a2728",
+        "x": 950,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "59bf1bd4ca4c5274",
+        "type": "mqtt in",
+        "z": "f6f2187d.f17ca8",
+        "name": "data_request_switch_4ch_state",
+        "topic": "data/+/request/switch_4ch_state",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "77bde423a73a2728",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 170,
+        "y": 340,
+        "wires": [
+            [
+                "090f677388a68264"
+            ]
+        ]
+    },
+    {
+        "id": "090f677388a68264",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "handle_request_switch_4ch_state",
+        "func": "const { device_mqtt_id } = msg.payload;\nif (!device_mqtt_id)\n    return;\n\nconst connection_id = msg.topic.split('/')[1];\nconst device_state_cache_key = `${device_mqtt_id}_state`;\n\nconst default_state_cache = {\n    'power_0': 'OFF',\n    'power_1': 'OFF',\n    'power_2': 'OFF',\n    'power_3': 'OFF',\n};\n\nreturn {\n    topic: `data/${connection_id}/response/switch_4ch_state`,\n    payload: global.get(device_state_cache_key) ?? default_state_cache,\n};\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 340,
+        "wires": [
+            [
+                "fea27e79c48ab6a3"
+            ]
+        ]
+    },
+    {
+        "id": "fea27e79c48ab6a3",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "data_response",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "77bde423a73a2728",
+        "x": 740,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "909c79fc8a0be4a2",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "main_state_temp",
+        "func": "const { device_mqtt_id } = msg;\nreturn {\n    topic: `_state/${device_mqtt_id}/main`,\n    payload: msg.payload,\n};\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 690,
+        "y": 1040,
+        "wires": [
+            [
+                "5f21db8f3d25703d"
+            ]
+        ]
+    },
+    {
+        "id": "5f21db8f3d25703d",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "device_main_state",
+        "topic": "",
+        "qos": "0",
+        "retain": "true",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "77bde423a73a2728",
+        "x": 950,
+        "y": 1040,
+        "wires": []
+    },
+    {
+        "id": "84b47f15fba18f6a",
+        "type": "mqtt out",
+        "z": "f6f2187d.f17ca8",
+        "name": "device_main_state",
+        "topic": "",
+        "qos": "0",
+        "retain": "true",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "77bde423a73a2728",
+        "x": 950,
+        "y": 1080,
+        "wires": []
+    },
+    {
+        "id": "dd194de9eeb85c66",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "name": "main_state_humd",
+        "func": "const { device_mqtt_id } = msg;\nreturn {\n    topic: `_state/${device_mqtt_id}/main`,\n    payload: msg.payload,\n};\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 690,
+        "y": 1080,
+        "wires": [
+            [
+                "84b47f15fba18f6a"
+            ]
+        ]
+    },
+    {
+        "id": "2807d4878c8a37c9",
+        "type": "mqtt in",
+        "z": "f6f2187d.f17ca8",
+        "name": "device_state",
+        "topic": "state/#",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "77bde423a73a2728",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 110,
+        "y": 1000,
+        "wires": [
+            [
+                "4eef250cf6218303"
+            ]
+        ]
+    }
+]
